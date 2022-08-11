@@ -1,0 +1,78 @@
+
+1. --------------------------------
+
+SELECT Table1.mount, string_agg(Table1.gro, ', ') AS Group
+	FROM
+	(
+	SELECT mountains.mountain AS mount, groups.name_group AS gro
+	FROM mountai_climbing 
+	JOIN groups ON mountai_climbing.fk_groups_id = groups.groups_id
+	JOIN mountains ON mountai_climbing.fk_mountains_id = mountains.mountains_id
+	ORDER BY start_time
+	) AS Table1 
+	GROUP BY Table1.mount
+
+2. --------------------------------
+
+INSERT INTO mountains(mountain, heist, fk_location_id) VALUES ('Новая вершина3', 5770, 10);
+
+3. --------------------------------
+
+SELECT member.alpinist_name, start_time 
+FROM mountai_climbing 
+JOIN member ON mountai_climbing.fk_groups_id=member.fk_groups_id
+WHERE start_time BETWEEN '2011/02/25' AND '2013/02/27'
+
+4. --------------------------------
+
+INSERT INTO member (alpinist_name, home_address, fk_groups_id) 
+    VALUES ('Кукареков Максим', 'Садовая 123', 5);
+    
+UPDATE groups 
+    SET amount_alpinist = amount_alpinist + 1 
+    FROM member
+    WHERE groups.groups_id =
+        (
+        SELECT member.fk_groups_id 
+        FROM member 
+        ORDER BY member.member_id DESC LIMIT 1        
+        ) 
+
+5. --------------------------------
+
+SELECT  t1.alp, t1.mount, 
+    (SELECT COUNT(*) 
+        FROM mountai_climbing 
+        JOIN member 
+        ON mountai_climbing.fk_groups_id = member.fk_groups_id 
+        WHERE member_id = t1.mrid and mountai_climbing.mountain_climbing_id = t1.msid) AS number_of_climbings 
+        FROM (
+    (SELECT member.alpinist_name as alp, mountains.mountain as mount, member.member_id as mrid, mountains.mountains_id as msid 
+        FROM member 
+        CROSS JOIN mountains
+    
+    ) ) AS t1
+        ORDER BY t1.mrid
+
+6. --------------------------------
+
+SELECT groups.name_group, start_time 
+FROM mountai_climbing 
+JOIN groups ON mountai_climbing.fk_groups_id=groups.groups_id
+WHERE start_time BETWEEN '2011/02/25' AND '2013/02/27'
+
+7. --------------------------------
+
+INSERT INTO groups (groups_id, name_group, amount_alpinist) 
+    VALUES (default, 'Львы',  default);        
+
+INSERT INTO mountai_climbing(start_time, finish_time, fk_groups_id, fk_mountains_id) 
+    VALUES ('2022-08-05 17:36:20', default, currval('tablename_colname_seq2'), 4);
+
+8. --------------------------------
+
+SELECT mountains.mountain, SUM(groups.amount_alpinist) 
+FROM mountains 
+LEFT JOIN mountai_climbing ON mountains.mountains_id = mountai_climbing.mountain_climbing_id 
+JOIN groups ON groups.groups_id = mountai_climbing.fk_groups_id 
+GROUP BY mountains_id
